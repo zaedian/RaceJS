@@ -67,7 +67,7 @@ const sunOffset = new THREE.Vector3(20, 30, 20);
 let physicsWorld, vehicle, chassisBody, chassisMesh, wheelMeshes = [], transformAux1;
 const maxEngineForce = 5000, maxBreakingForce = 2000, maxSteeringValue = 0.45;
 const steeringIncrement = 0.1, steeringClamp = 0.2;
-const suspensionRestLength = 0.9, suspensionStiffness = 50, suspensionDamping = 3, suspensionCompression = 5, suspensionRelaxation = 5;
+const suspensionRestLength = 1.0, suspensionStiffness = 50, suspensionDamping = 3, suspensionCompression = 5, suspensionRelaxation = 5;
 const rollInfluence = 0.1, wheelFriction = 1000, wheelRadius = 0.3, wheelWidth = 0.12;
 let currentSteeringValue = 0, engineForce = 0, breakingForce = 0;
 const clock = new THREE.Clock();
@@ -185,7 +185,25 @@ function createAmmoShapeFromMesh(mesh) {
 
     function createCar() {
         // Create chassis shape (using a box with rounded edges or a more complex shape)
-        const chassisShape = new Ammo.btBoxShape(new Ammo.btVector3(1, 0.5, 2));
+        const geometry = new THREE.SphereGeometry(1.5, 8, 8); // Base sphere
+geometry.scale(1, 0.5, 2); // Oval shape
+
+const positionAttr = geometry.attributes.position;
+const vertices = positionAttr.array;
+const chassisShape = new Ammo.btConvexHullShape();
+
+for (let i = 0; i < vertices.length; i += 3) {
+    let x = vertices[i];
+    let y = vertices[i + 1];
+    let z = vertices[i + 2];
+
+    // Flatten the bottom: if y is below a threshold, clamp it
+    const bottomY = -0.5; // Adjust as needed
+    if (y < bottomY) y = bottomY;
+
+    chassisShape.addPoint(new Ammo.btVector3(x, y, z));
+}
+
         const transform = new Ammo.btTransform();
         transform.setIdentity();
         transform.setOrigin(new Ammo.btVector3(0, 1.0, 0));
