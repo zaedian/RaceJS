@@ -10,6 +10,7 @@ camera.lookAt(0, 0, 0);
 const raycaster = new THREE.Raycaster();
 const downVector = new THREE.Vector3(0, -1, 0);
 
+const updatables = [];
 
 const renderer = new THREE.WebGLRenderer({ antialias: true });
 renderer.setSize(window.innerWidth, window.innerHeight);
@@ -47,10 +48,10 @@ Sun.shadow.camera.right = 50;
 Sun.shadow.camera.top = 50;
 Sun.shadow.camera.bottom = -50;
 Sun.shadow.camera.near = 1;
-Sun.shadow.camera.far = 200;
+Sun.shadow.camera.far = 300;
 Sun.shadow.mapSize.width = 4096;
 Sun.shadow.mapSize.height = 4096;
-Sun.shadow.bias = -0.0005;        // Added bias for shadow acne reduction
+Sun.shadow.bias = 0.00005;        // Added bias for shadow acne reduction
 Sun.shadow.normalBias = 0.02;     // Better normal bias
 
 Sun.target.position.set(0, 0, 0);
@@ -78,6 +79,7 @@ Ammo().then(function (Ammo) {
     initPhysics();
     createGround();
     createCar();
+	createBall({ x: -30, y: 0, z: 30 });
     createMap();
     transformAux1 = new Ammo.btTransform();
 
@@ -133,7 +135,7 @@ Ammo().then(function (Ammo) {
             map.traverse(child => {
                 if (child.isMesh) {
                     child.castShadow = false;
-                    child.receiveShadow = false;
+                    child.receiveShadow = true;
 
                     // OPTIONAL: Add physics if needed
                     const shape = createAmmoShapeFromMesh(child);
@@ -155,6 +157,50 @@ Ammo().then(function (Ammo) {
             console.error('Error loading map.glb:', error);
         });
     }
+	
+	
+	function createBall(position = { x: 0, y: 0, z: 0 }, radius = 1.5, mass = 250) {
+    // Three.js mesh
+    const ballGeometry = new THREE.SphereGeometry(radius, 16, 16);
+    const ballMaterial = new THREE.MeshStandardMaterial({ color: 0x0000A3 });
+    const ballMesh = new THREE.Mesh(ballGeometry, ballMaterial);
+    ballMesh.castShadow = true;
+    ballMesh.receiveShadow = true;
+    ballMesh.position.set(position.x, position.y, position.z);
+    scene.add(ballMesh);
+
+    // Ammo.js shape
+    const ballShape = new Ammo.btSphereShape(radius);
+    const startTransform = new Ammo.btTransform();
+    startTransform.setIdentity();
+    startTransform.setOrigin(new Ammo.btVector3(position.x, position.y, position.z));
+
+    const localInertia = new Ammo.btVector3(0, 0, 0);
+    ballShape.calculateLocalInertia(mass, localInertia);
+
+    const motionState = new Ammo.btDefaultMotionState(startTransform);
+    const rbInfo = new Ammo.btRigidBodyConstructionInfo(mass, motionState, ballShape, localInertia);
+    const ballBody = new Ammo.btRigidBody(rbInfo);
+    ballBody.setFriction(1);
+    ballBody.setRestitution(0.6); // bounciness
+    physicsWorld.addRigidBody(ballBody);
+
+    // Update loop binding
+    const update = () => {
+        const ms = ballBody.getMotionState();
+        if (ms) {
+            ms.getWorldTransform(transformAux1);
+            const p = transformAux1.getOrigin();
+            const q = transformAux1.getRotation();
+            ballMesh.position.set(p.x(), p.y(), p.z());
+            ballMesh.quaternion.set(q.x(), q.y(), q.z(), q.w());
+        }
+    };
+
+    // Hook into animation loop
+    updatables.push(update);
+}
+
 
 function createAmmoShapeFromMesh(mesh) {
     const geometry = mesh.geometry;
@@ -480,7 +526,8 @@ if (cameraMode === 'firstPerson') {
         wheelMeshes[i].position.set(p.x(), p.y(), p.z());
         wheelMeshes[i].quaternion.set(q.x(), q.y(), q.z(), q.w());
     }
-
+	
+	updatables.forEach(fn => fn());
 
     renderer.render(scene, camera);
 }
