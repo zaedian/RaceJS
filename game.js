@@ -232,11 +232,12 @@ function createAmmoShapeFromMesh(mesh) {
 // Step 2: Create the sphere geometry (chassis shape) with radius 2, widthSegments 8, heightSegments 8
         const geometry = new THREE.SphereGeometry(2, 12, 12);
 		geometry.scale(0.6, 0.7, 1); // Oval shape
-        const material = new THREE.MeshBasicMaterial({ color: 0x00ff00, wireframe: true }); // Green wireframe
-        const sphere = new THREE.Mesh(geometry, material);
-        
-        // Step 3: Add the sphere to the scene
-        scene.add(sphere);
+      
+	  
+		// Add visual for collision shape
+		//const material = new THREE.MeshBasicMaterial({ color: 0x00ff00, wireframe: true }); // Green wireframe
+		//const sphere = new THREE.Mesh(geometry, material);
+        //scene.add(sphere);
 
 const positionAttr = geometry.attributes.position;
 const vertices = positionAttr.array;
