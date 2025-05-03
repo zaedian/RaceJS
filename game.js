@@ -67,7 +67,7 @@ const sunOffset = new THREE.Vector3(20, 30, 20);
 let physicsWorld, vehicle, chassisBody, chassisMesh, wheelMeshes = [], transformAux1;
 const maxEngineForce = 5000, maxBreakingForce = 2000, maxSteeringValue = 0.45;
 const steeringIncrement = 0.1, steeringClamp = 0.2;
-const suspensionRestLength = 0.8, suspensionStiffness = 50, suspensionDamping = 3, suspensionCompression = 5, suspensionRelaxation = 5;
+const suspensionRestLength = 1.0, suspensionStiffness = 50, suspensionDamping = 3, suspensionCompression = 5, suspensionRelaxation = 5;
 const rollInfluence = 0.1, wheelFriction = 1000, wheelRadius = 0.3, wheelWidth = 0.12;
 let currentSteeringValue = 0, engineForce = 0, breakingForce = 0;
 const clock = new THREE.Clock();
@@ -157,30 +157,31 @@ Ammo().then(function (Ammo) {
         });
     }
 
-    function createAmmoShapeFromMesh(mesh) {
-        const geometry = mesh.geometry;
+function createAmmoShapeFromMesh(mesh) {
+    const geometry = mesh.geometry;
+    if (!geometry || !geometry.attributes.position) return null;
 
-        if (!geometry || !geometry.attributes.position) return null;
+    const vertices = geometry.attributes.position.array;
+    const index = geometry.index ? geometry.index.array : null;
+    const triangleMesh = new Ammo.btTriangleMesh();
 
-        const vertices = geometry.attributes.position.array;
-        const index = geometry.index ? geometry.index.array : null;
-        const triangleMesh = new Ammo.btTriangleMesh();
+    // Traverse the geometry's indices to create the triangle mesh
+    for (let i = 0; i < (index ? index.length : vertices.length / 3); i += 3) {
+        const idx0 = index ? index[i] * 3 : i * 3;
+        const idx1 = index ? index[i + 1] * 3 : (i + 1) * 3;
+        const idx2 = index ? index[i + 2] * 3 : (i + 2) * 3;
 
-        for (let i = 0; i < (index ? index.length : vertices.length / 3); i += 3) {
-            const idx0 = index ? index[i] * 3 : i * 3;
-            const idx1 = index ? index[i + 1] * 3 : (i + 1) * 3;
-            const idx2 = index ? index[i + 2] * 3 : (i + 2) * 3;
+        const v0 = new Ammo.btVector3(vertices[idx0], vertices[idx0 + 1], vertices[idx0 + 2]);
+        const v1 = new Ammo.btVector3(vertices[idx1], vertices[idx1 + 1], vertices[idx1 + 2]);
+        const v2 = new Ammo.btVector3(vertices[idx2], vertices[idx2 + 1], vertices[idx2 + 2]);
 
-            const v0 = new Ammo.btVector3(vertices[idx0], vertices[idx0 + 1], vertices[idx0 + 2]);
-            const v1 = new Ammo.btVector3(vertices[idx1], vertices[idx1 + 1], vertices[idx1 + 2]);
-            const v2 = new Ammo.btVector3(vertices[idx2], vertices[idx2 + 1], vertices[idx2 + 2]);
-
-            triangleMesh.addTriangle(v0, v1, v2, true);
-        }
-
-        const shape = new Ammo.btBvhTriangleMeshShape(triangleMesh, true, true);
-        return shape;
+        triangleMesh.addTriangle(v0, v1, v2, true);
     }
+
+    const shape = new Ammo.btBvhTriangleMeshShape(triangleMesh, true, true);
+    return shape;
+}
+
 
     function createCar() {
         // Create chassis shape (using a box with rounded edges or a more complex shape)
@@ -479,6 +480,7 @@ if (cameraMode === 'firstPerson') {
         wheelMeshes[i].position.set(p.x(), p.y(), p.z());
         wheelMeshes[i].quaternion.set(q.x(), q.y(), q.z(), q.w());
     }
+
 
     renderer.render(scene, camera);
 }
