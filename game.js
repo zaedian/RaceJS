@@ -1,6 +1,5 @@
 // game.js
 
-// --- Scene Setup
 const scene = new THREE.Scene();
 
 const textureLoader = new THREE.TextureLoader();
@@ -165,7 +164,7 @@ function createAmmoShapeFromMesh(mesh) {
     const index = geometry.index ? geometry.index.array : null;
     const triangleMesh = new Ammo.btTriangleMesh();
 
-    // Traverse the geometry's indices to create the triangle mesh
+    // create the triangle mesh from geometry's indices
     for (let i = 0; i < (index ? index.length : vertices.length / 3); i += 3) {
         const idx0 = index ? index[i] * 3 : i * 3;
         const idx1 = index ? index[i + 1] * 3 : (i + 1) * 3;
@@ -425,37 +424,20 @@ if (cameraMode === 'firstPerson') {
     chassisMesh.getWorldPosition(carPosition); // Get car's world position
     camera.position.copy(carPosition).add(cameraWorldOffset);
 
-    // --- Orientation Fix ---
-
-    // Get the car's world rotation
+    // Orientation
     const carQuaternion = chassisMesh.quaternion.clone();
 
-    // Create the camera's total rotation relative to its default orientation (looking down -Z)
-    // Start with identity
     const cameraRelativeRotation = new THREE.Quaternion();
 
-    // Step 1: Apply a 180-degree rotation around the local Y-axis to make the camera face forward (+Z)
-    // from its default (-Z forward) orientation.
     const forwardAlignQuaternion = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 1, 0), Math.PI);
     cameraRelativeRotation.multiply(forwardAlignQuaternion); // cameraRelativeRotation = identity * forwardAlign
 
-    // Step 2: Apply the user's yaw rotation around the camera's local Y-axis
-    // This rotation is relative to the camera's current orientation (which is now facing forward)
     const yawQuat = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 1, 0), yawFirstPerson);
     cameraRelativeRotation.multiply(yawQuat); // cameraRelativeRotation = forwardAlign * yaw
 
-    // Step 3: Apply the user's pitch rotation around the camera's local X-axis
-    // This rotation is relative to the camera's current orientation (which is now yawed and forward-aligned)
-    const pitchQuat = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(1, 0, 0), pitchFirstPerson); // Note the negative pitch for intuitive up/down
+    const pitchQuat = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(1, 0, 0), pitchFirstPerson); 
     cameraRelativeRotation.multiply(pitchQuat); // cameraRelativeRotation = forwardAlign * yaw * pitch
-
-    // Combine the car's world rotation with the camera's total relative rotation.
-    // The car's quaternion rotates the world axes to the car's orientation.
-    // Multiplying by cameraRelativeRotation applies the camera's local rotations
-    // (forward alignment, yaw, pitch) in the coordinate system defined by the car's rotation.
     camera.quaternion.copy(carQuaternion).multiply(cameraRelativeRotation);
-
-    // The camera's orientation is now directly set by the quaternion.
 }
 
 
