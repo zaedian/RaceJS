@@ -126,11 +126,6 @@ Ammo().then(function (Ammo) {
         mesh.position.y = -groundThickness;
         mesh.receiveShadow = true;
         scene.add(mesh);
-
-        // Add ramps
-        addRamp(10, 0.5, 25, 0, 4.5, 120, -Math.PI / 8);
-        addRamp(10, 0.5, 10, -40, 1.25, 60, -Math.PI / 10);
-        addRamp(10, 0.5, 10, 30, 1.25, -20, Math.PI / 10);
     }
 
     function createMap() {
@@ -185,28 +180,6 @@ Ammo().then(function (Ammo) {
 
         const shape = new Ammo.btBvhTriangleMeshShape(triangleMesh, true, true);
         return shape;
-    }
-
-    function addRamp(width, height, depth, x, y, z, rotationX = 0) {
-        const shape = new Ammo.btBoxShape(new Ammo.btVector3(width/2, height/2, depth/2));
-        const transform = new Ammo.btTransform();
-        transform.setIdentity();
-        const position = new Ammo.btVector3(x, y, z);
-        const quaternion = new Ammo.btQuaternion();
-        quaternion.setRotation(new Ammo.btVector3(1, 0, 0), rotationX);
-        transform.setOrigin(position);
-        transform.setRotation(quaternion);
-        const motionState = new Ammo.btDefaultMotionState(transform);
-        const body = new Ammo.btRigidBody(new Ammo.btRigidBodyConstructionInfo(0, motionState, shape, new Ammo.btVector3(0,0,0)));
-        physicsWorld.addRigidBody(body);
-
-        const geometry = new THREE.BoxGeometry(width, height, depth);
-        const mesh = new THREE.Mesh(geometry, new THREE.MeshStandardMaterial({ color: 0x4444aa }));
-        mesh.position.set(x, y, z);
-        mesh.rotation.x = rotationX;
-        mesh.castShadow = true;
-        mesh.receiveShadow = true;
-        scene.add(mesh);
     }
 
     function createCar() {
