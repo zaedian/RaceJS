@@ -66,7 +66,7 @@ const sunOffset = new THREE.Vector3(20, 30, 20);
 // Ammo.js variables
 let physicsWorld, vehicle, chassisBody, chassisMesh, wheelMeshes = [], transformAux1;
 const maxEngineForce = 5000, maxBreakingForce = 2000, maxSteeringValue = 0.45;
-const steeringIncrement = 0.1, steeringClamp = 0.2;
+const steeringIncrement = 0.1, steeringClamp = 0.15;
 const suspensionRestLength = 1.0, suspensionStiffness = 50, suspensionDamping = 3, suspensionCompression = 5, suspensionRelaxation = 5;
 const rollInfluence = 0.1, wheelFriction = 1000, wheelRadius = 0.3, wheelWidth = 0.12;
 let currentSteeringValue = 0, engineForce = 0, breakingForce = 0;
@@ -229,9 +229,14 @@ function createAmmoShapeFromMesh(mesh) {
 
 
     function createCar() {
-        // Create chassis shape (using a box with rounded edges or a more complex shape)
-        const geometry = new THREE.SphereGeometry(1.5, 8, 8); // Base sphere
-geometry.scale(1, 0.5, 2); // Oval shape
+// Step 2: Create the sphere geometry (chassis shape) with radius 2, widthSegments 8, heightSegments 8
+        const geometry = new THREE.SphereGeometry(2, 12, 12);
+		geometry.scale(0.6, 0.7, 1); // Oval shape
+        const material = new THREE.MeshBasicMaterial({ color: 0x00ff00, wireframe: true }); // Green wireframe
+        const sphere = new THREE.Mesh(geometry, material);
+        
+        // Step 3: Add the sphere to the scene
+        scene.add(sphere);
 
 const positionAttr = geometry.attributes.position;
 const vertices = positionAttr.array;
