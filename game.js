@@ -471,21 +471,14 @@ if (cameraMode === 'firstPerson') {
         }
     }
 
-// Update wheel meshes
-for (let i = 0; i < wheelMeshes.length; i++) {
-    vehicle.updateWheelTransform(i, true);
-    const tm = vehicle.getWheelTransformWS(i);
-    const p = tm.getOrigin();
-    let q = tm.getRotation();
-
-    // Prevent rotation on the X-axis by setting the X component of the quaternion to 0
-    q.setValue(0, q.y(), q.z(), q.w());  // Manually set the X component to 0
-
-    // Apply the transformation to the wheel meshes
-    wheelMeshes[i].position.set(p.x(), p.y(), p.z());
-    wheelMeshes[i].quaternion.set(q.x(), q.y(), q.z(), q.w());
-}
-
+    // Update wheel meshes
+    for (let i = 0; i < wheelMeshes.length; i++) {
+        vehicle.updateWheelTransform(i, true);
+        const tm = vehicle.getWheelTransformWS(i);
+        const p = tm.getOrigin(), q = tm.getRotation();
+        wheelMeshes[i].position.set(p.x(), p.y(), p.z());
+        wheelMeshes[i].quaternion.set(q.x(), q.y(), q.z(), q.w());
+    }
 
     renderer.render(scene, camera);
 }
