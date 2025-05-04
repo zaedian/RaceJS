@@ -80,7 +80,7 @@ Ammo().then(function (Ammo) {
     createGround();
     createCar();
 	createBall({ x: -30, y: 0, z: 30 });
-    createMap();
+    //createMap();
     transformAux1 = new Ammo.btTransform();
 
     const keys = {};
