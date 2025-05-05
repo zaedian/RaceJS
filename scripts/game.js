@@ -417,17 +417,18 @@ let yawThirdPerson = 0;
 let pitchThirdPerson = 0;
 
 // Pointer lock on click
-renderer.domElement.addEventListener('click', () => renderer.domElement.requestPointerLock());
+renderer.domElement.addEventListener('click', () => {
+    renderer.domElement.requestPointerLock();
+    // Immediately add mousemove listener once the pointer is locked
+    document.addEventListener('mousemove', onMouseMove, false);
+});
 
 // Pointer lock change
 document.addEventListener('pointerlockchange', () => {
-    document.onpointerlockchange = () => {
-        if (document.pointerLockElement === renderer.domElement) {
-            document.addEventListener('mousemove', onMouseMove, false);
-        } else {
-            document.removeEventListener('mousemove', onMouseMove, false);
-        }
-    };
+    if (document.pointerLockElement !== renderer.domElement) {
+        // Remove the mousemove event listener when pointer lock is lost
+        document.removeEventListener('mousemove', onMouseMove, false);
+    }
 });
 
 // Mouse move handler
