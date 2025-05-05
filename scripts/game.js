@@ -1,14 +1,4 @@
 // game.js
-// game.js
-//Fix the turning speed on lower speeds so its a bit better.
-//make the car collision shape the exact shape of the car model.
-//Make the car be able to flip if sideways or upside down (does it now but not like gta (maybe make it an option in settings to either turn it off, have it like gta or make it automatically flip.
-// when the car is upside down make the camera flip as well so you can see the car while upside down in a loop de loop.
-//add interior to the car model. car seats, steering wheel etc.
-//make the collision box the exact shape of the car.glb
-//bake lights for the map in blender.
-//add main menu and map selection
-//add sounds for car
 const scene = new THREE.Scene();
 
 const textureLoader = new THREE.TextureLoader();
@@ -74,10 +64,11 @@ const sunOffset = new THREE.Vector3(20, 30, 20);
 
 // Ammo.js variables
 let physicsWorld, vehicle, chassisBody, chassisMesh, wheelMeshes = [], transformAux1;
-const maxEngineForce = 5000, maxBreakingForce = 2000, maxSteeringValue = 0.45;
-const steeringIncrement = 0.1, steeringClamp = 0.15;
-const suspensionRestLength = 1.0, suspensionStiffness = 50, suspensionDamping = 3, suspensionCompression = 5, suspensionRelaxation = 5;
-const rollInfluence = 0.1, wheelFriction = 1000, wheelRadius = 0.3, wheelWidth = 0.12;
+const maxEngineForce = 6000, maxBreakingForce = 2000, maxSteeringValue = 0.45;
+const steeringIncrement = 0.1, steeringClamp = 0.3;
+const suspensionRestLength = 1.0, suspensionStiffness = 50, suspensionDamping = 5, suspensionCompression = 1, suspensionRelaxation = 5;
+//How fast the car rolls over
+const rollInfluence = 0.015, wheelFriction = 1000, wheelRadius = 0.3, wheelWidth = 0.12;
 let currentSteeringValue = 0, engineForce = 0, breakingForce = 0;
 const clock = new THREE.Clock();
 
@@ -390,9 +381,9 @@ function updateVehicle(deltaTime) {
     // Calculate speed (use only the x and z velocity components)
     const speed = getVehicleSpeed();
 
-    // Steering should be more responsive at higher speeds
-    const speedFactor = Math.max(1, speed / 8); // Increase speedFactor as speed increases
-    const steeringMultiplier = 1 / speedFactor; // Inverse scaling: lower speeds = larger multiplier
+// Steering should be more responsive at higher speeds
+const speedFactor = Math.max(1, speed / 8);
+const steeringMultiplier = 1 / speedFactor;
 
     if (keys['a'] || keys['arrowleft']) {
         currentSteeringValue = Math.min(currentSteeringValue + steeringIncrement * deltaTime * 60 * steeringMultiplier, steeringClamp);
@@ -521,7 +512,7 @@ if (up.y < 0.2) { // Almost upside down
 
 // First-person camera update logic
 if (cameraMode === 'firstPerson') {
-    const cameraHeight = 0.4;
+    const cameraHeight = 0.5;
     // Assuming the car's local forward is positive Z and right is positive X
 
     // Calculate the camera position relative to the car's local space
