@@ -159,7 +159,7 @@ Ammo().then(function (Ammo) {
     }
 	
 	
-function createBall(position = { x: 0, y: 0, z: 0 }, radius = 1.5, mass = 250) {
+function createBall(position = { x: 0, y: 0, z: 0 }, radius = 1.5, mass = 700) {
     // Load the map.glb and find the ball model inside it
     gltfLoader.load('models/map.glb', function (gltf) {
         const map = gltf.scene;
