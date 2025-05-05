@@ -1,8 +1,14 @@
 // game.js
+// game.js
 //Fix the turning speed on lower speeds so its a bit better.
-//Make the car be able to flip if sideways or upside down
+//make the car collision shape the exact shape of the car model.
+//Make the car be able to flip if sideways or upside down (does it now but not like gta (maybe make it an option in settings to either turn it off, have it like gta or make it automatically flip.
+// when the car is upside down make the camera flip as well so you can see the car while upside down in a loop de loop.
+//add interior to the car model. car seats, steering wheel etc.
 //make the collision box the exact shape of the car.glb
-//look at other games like ATV TRain game for ps2 and other racing games for ideas.
+//bake lights for the map in blender.
+//add main menu and map selection
+//add sounds for car
 const scene = new THREE.Scene();
 
 const textureLoader = new THREE.TextureLoader();
@@ -470,6 +476,36 @@ function animate() {
             chassisMesh.quaternion.set(q.x(), q.y(), q.z(), q.w());
 
             const carPosition = chassisMesh.position;
+			
+			
+			
+			// Auto-flip if upside down or sideways too long
+const rotation = chassisMesh.quaternion;
+const up = new THREE.Vector3(0, 1, 0).applyQuaternion(rotation);
+if (up.y < 0.2) { // Almost upside down
+    if (!chassisMesh.flipTimer) chassisMesh.flipTimer = 0;
+    chassisMesh.flipTimer += deltaTime;
+
+    if (chassisMesh.flipTimer > 5) { // Wait 5 seconds before flipping
+        const transform = new Ammo.btTransform();
+        transform.setIdentity();
+        transform.setOrigin(new Ammo.btVector3(
+            chassisMesh.position.x,
+            chassisMesh.position.y + 2,
+            chassisMesh.position.z
+        ));
+        transform.setRotation(new Ammo.btQuaternion(0, 0, 0, 1)); // Reset rotation
+        chassisBody.setWorldTransform(transform);
+        chassisBody.setLinearVelocity(new Ammo.btVector3(0, 0, 0));
+        chassisBody.setAngularVelocity(new Ammo.btVector3(0, 0, 0));
+        chassisBody.activate();
+        chassisMesh.flipTimer = 0;
+    }
+} else {
+    chassisMesh.flipTimer = 0;
+}
+
+			
 
             // Sun position remains unchanged
             Sun.position.x = carPosition.x - 15;
