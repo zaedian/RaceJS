@@ -64,11 +64,11 @@ const sunOffset = new THREE.Vector3(20, 30, 20);
 
 // Ammo.js variables
 let physicsWorld, vehicle, chassisBody, chassisMesh, wheelMeshes = [], transformAux1;
-const maxEngineForce = 6000, maxBreakingForce = 2000, maxSteeringValue = 0.45;
+const maxEngineForce = 6500, maxBreakingForce = 2000, maxSteeringValue = 0.45;
 const steeringIncrement = 0.1, steeringClamp = 0.3;
 const suspensionRestLength = 1.0, suspensionStiffness = 50, suspensionDamping = 5, suspensionCompression = 1, suspensionRelaxation = 5;
 //How fast the car rolls over
-const rollInfluence = 0.015, wheelFriction = 1000, wheelRadius = 0.3, wheelWidth = 0.12;
+const rollInfluence = 0.01, wheelFriction = 1000, wheelRadius = 0.3, wheelWidth = 0.15;
 let currentSteeringValue = 0, engineForce = 0, breakingForce = 0;
 const clock = new THREE.Clock();
 
@@ -517,7 +517,7 @@ if (cameraMode === 'firstPerson') {
 
     // Calculate the camera position relative to the car's local space
     // Adjust the offset here if the camera should be positioned differently relative to the car's origin
-    const cameraLocalOffset = new THREE.Vector3(0.4, cameraHeight, -0.4); // Example: slightly behind the origin, at a certain height
+    const cameraLocalOffset = new THREE.Vector3(0.4, cameraHeight, -0.2); // Example: slightly behind the origin, at a certain height
 
     // Apply the car's rotation to the local offset to get the world offset
     const cameraWorldOffset = cameraLocalOffset.clone().applyQuaternion(chassisMesh.quaternion);
@@ -542,7 +542,6 @@ if (cameraMode === 'firstPerson') {
     cameraRelativeRotation.multiply(pitchQuat); // cameraRelativeRotation = forwardAlign * yaw * pitch
     camera.quaternion.copy(carQuaternion).multiply(cameraRelativeRotation);
 }
-
 
 
 
