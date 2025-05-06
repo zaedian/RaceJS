@@ -566,8 +566,8 @@ if (cameraMode === 'firstPerson') {
 
             // Third-person camera update logic
             else {
-                const cameraDistance = 4;
-                const cameraHeight = 1.2;
+                const cameraDistance = 5;
+                const cameraHeight = 1.75;
                 const offset = new THREE.Vector3(
                     -Math.sin(yawThirdPerson) * cameraDistance,
                     0,
