@@ -302,10 +302,12 @@ for (let i = 0; i < vertices.length; i += 3) {
                     child.receiveShadow = true;
                 }
             });
-const neonLight = new THREE.RectAreaLight(0x0000ff, 5, 2, 3.75);
-neonLight.position.set(0, -0.5, 0);
-neonLight.rotation.x = -Math.PI / 2;
-chassisMesh.add(neonLight);
+			
+			
+			/*const neonLight = new THREE.RectAreaLight(0x0000ff, 5, 2, 3.75);
+			neonLight.position.set(0, -0.5, 0);
+			neonLight.rotation.x = -Math.PI / 2;
+			chassisMesh.add(neonLight);*/
 
 
             scene.add(chassisMesh);
