@@ -85,7 +85,9 @@ Ammo().then(function (Ammo) {
     initPhysics();
     createGround();
     createCar();
-	createBall({ x: -30, y: 0, z: 30 });
+	createBall({ x: -25, y: 0, z: 30 }, 1.5, 1);
+	createBall({ x: -30, y: 0, z: 30 }, 1.5, 1000);
+	createBall({ x: -35, y: 0, z: 30 }, 1.5, 12000);
     createMap();
     transformAux1 = new Ammo.btTransform();
 
@@ -165,29 +167,20 @@ Ammo().then(function (Ammo) {
     }
 	
 	
-function createBall(position = { x: 0, y: 0, z: 0 }, radius = 1.5, mass = 750) {
+function createBall(position, radius, mass) {
+
     // Load the map.glb and find the ball model inside it
     gltfLoader.load('models/map.glb', function (gltf) {
         const map = gltf.scene;
-
-        // Find the ball model in the loaded GLTF (assuming it's named 'Ball' in the GLTF file)
-        const ballModel = map.getObjectByName('Ball'); // Adjust this name based on the actual name of the ball in your .glb model
+        const ballModel = map.getObjectByName('Ball');
 
         if (ballModel) {
-            // Set the ball model's position
             ballModel.position.set(position.x, position.y, position.z);
-
-            // Optional: Scale the ball if needed
             ballModel.scale.set(radius, radius, radius);
-			
-            // Enable shadows for the ball (on the physics body)
-            ballModel.castShadow = true; // The ball will cast shadows
-            ballModel.receiveShadow = true; // The ball can also receive shadows
-
-            // Add the ball model to the scene (for interaction but not visible)
+            ballModel.castShadow = true;
+            ballModel.receiveShadow = true;
             scene.add(ballModel);
 
-            // Now create the physics ball (a separate ball shape in the physics world)
             const ballShape = new Ammo.btSphereShape(radius);
             const startTransform = new Ammo.btTransform();
             startTransform.setIdentity();
@@ -200,22 +193,20 @@ function createBall(position = { x: 0, y: 0, z: 0 }, radius = 1.5, mass = 750) {
             const rbInfo = new Ammo.btRigidBodyConstructionInfo(mass, motionState, ballShape, localInertia);
             const ballBody = new Ammo.btRigidBody(rbInfo);
             ballBody.setFriction(1);
-            ballBody.setRestitution(0.6); // bounciness
+            ballBody.setRestitution(0.6);
             physicsWorld.addRigidBody(ballBody);
 
-            // Create a function to sync the model's position with the physics ball
             const update = () => {
                 const ms = ballBody.getMotionState();
                 if (ms) {
                     ms.getWorldTransform(transformAux1);
                     const p = transformAux1.getOrigin();
                     const q = transformAux1.getRotation();
-                    ballModel.position.set(p.x(), p.y(), p.z());  // Sync the model's position with the physics object
-                    ballModel.quaternion.set(q.x(), q.y(), q.z(), q.w());  // Sync rotation
+                    ballModel.position.set(p.x(), p.y(), p.z());
+                    ballModel.quaternion.set(q.x(), q.y(), q.z(), q.w());
                 }
             };
 
-            // Hook into animation loop
             updatables.push(update);
         } else {
             console.error("Ball model not found in map.glb");
