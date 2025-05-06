@@ -17,6 +17,12 @@ renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 document.body.appendChild(renderer.domElement);
 
+let paused = false;
+
+document.addEventListener('visibilitychange', () => {
+    paused = document.hidden;
+});
+
 window.addEventListener('resize', () => {
     camera.aspect = window.innerWidth / window.innerHeight;
     camera.updateProjectionMatrix();
@@ -462,10 +468,17 @@ function onMouseMove(event) {
     }
 }
 
+
+
+
 // Animation loop
 function animate() {
     requestAnimationFrame(animate);
-    const deltaTime = clock.getDelta();
+    let deltaTime = clock.getDelta();
+    if (paused) return;
+
+    deltaTime = Math.min(deltaTime, 0.05); // Clamp it
+
 
     if (vehicle) updateVehicle(deltaTime);
     if (physicsWorld) physicsWorld.stepSimulation(deltaTime, 20);
