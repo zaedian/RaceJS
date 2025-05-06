@@ -567,76 +567,78 @@ if (cameraMode === 'firstPerson') {
     const pitchQuat = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(1, 0, 0), pitchFirstPerson); 
     cameraRelativeRotation.multiply(pitchQuat); // cameraRelativeRotation = forwardAlign * yaw * pitch
     camera.quaternion.copy(carQuaternion).multiply(cameraRelativeRotation);
-}
+} else {
 
 
 
 
 
             // Third-person camera update logic
-if (cameraType === 'type1') {
-    const cameraDistance = 5;
-    const cameraHeight = 1.75;
+			
 
-    const offset = new THREE.Vector3(
-        -Math.sin(yawThirdPerson) * cameraDistance,
-        0,
-        -Math.cos(yawThirdPerson) * cameraDistance
-    );
+	if (cameraType === 'type1') {
+		const cameraDistance = 5;
+		const cameraHeight = 1.75;
 
-    camera.position.copy(carPosition).add(offset);
-    camera.position.y += cameraHeight - Math.sin(pitchThirdPerson) * cameraDistance;
+		const offset = new THREE.Vector3(
+			-Math.sin(yawThirdPerson) * cameraDistance,
+			0,
+			-Math.cos(yawThirdPerson) * cameraDistance
+		);
 
-    raycaster.set(new THREE.Vector3(camera.position.x, camera.position.y + 10, camera.position.z), new THREE.Vector3(0, -1, 0));
-    const intersects = raycaster.intersectObjects(scene.children, true);
-    if (intersects.length > 0) {
-        const groundY = intersects[0].point.y;
-        camera.position.y = Math.max(camera.position.y, groundY + 0.5);
-    }
+		camera.position.copy(carPosition).add(offset);
+		camera.position.y += cameraHeight - Math.sin(pitchThirdPerson) * cameraDistance;
 
-    camera.lookAt(carPosition);
+		raycaster.set(new THREE.Vector3(camera.position.x, camera.position.y + 10, camera.position.z), new THREE.Vector3(0, -1, 0));
+		const intersects = raycaster.intersectObjects(scene.children, true);
+		if (intersects.length > 0) {
+			const groundY = intersects[0].point.y;
+			camera.position.y = Math.max(camera.position.y, groundY + 0.5);
+		}
+
+		camera.lookAt(carPosition);
+	}
+
+	else if (cameraType === 'type2') {
+		const cameraDistance = 5;
+		const cameraHeight = 1.5;
+
+		const offset = new THREE.Vector3(
+			-Math.sin(yawThirdPerson) * cameraDistance,
+			0,
+			-Math.cos(yawThirdPerson) * cameraDistance
+		);
+
+		const rotatedOffset = offset.clone().applyQuaternion(chassisMesh.quaternion);
+		const idealCameraPosition = carPosition.clone().add(rotatedOffset);
+		idealCameraPosition.y += cameraHeight - Math.sin(pitchThirdPerson) * cameraDistance;
+
+		camera.position.copy(idealCameraPosition);
+
+		const raycastOrigin = new THREE.Vector3(idealCameraPosition.x, idealCameraPosition.y + 10, idealCameraPosition.z);
+		raycaster.set(raycastOrigin, new THREE.Vector3(0, -1, 0));
+		const intersects = raycaster.intersectObjects(scene.children, true);
+
+		let groundY = -Infinity;
+
+		if (intersects.length > 0) {
+			groundY = intersects[0].point.y;
+			const minCameraYAboveGround = groundY + 0.5;
+			camera.position.y = Math.max(camera.position.y, minCameraYAboveGround);
+
+			const carGroundDistance = carPosition.y - groundY;
+			const ceilingThreshold = 2.0;
+			if (carGroundDistance < ceilingThreshold) {
+				const maxCameraYUnderCeiling = carPosition.y + cameraHeight;
+				camera.position.y = Math.min(camera.position.y, maxCameraYUnderCeiling);
+			}
+		}
+
+		const carForward = new THREE.Vector3(0, 0, 1).applyQuaternion(chassisMesh.quaternion);
+		camera.lookAt(carPosition.clone().add(carForward));
+	}
+
 }
-
-else if (cameraType === 'type2') {
-    const cameraDistance = 5;
-    const cameraHeight = 1.5;
-
-    const offset = new THREE.Vector3(
-        -Math.sin(yawThirdPerson) * cameraDistance,
-        0,
-        -Math.cos(yawThirdPerson) * cameraDistance
-    );
-
-    const rotatedOffset = offset.clone().applyQuaternion(chassisMesh.quaternion);
-    const idealCameraPosition = carPosition.clone().add(rotatedOffset);
-    idealCameraPosition.y += cameraHeight - Math.sin(pitchThirdPerson) * cameraDistance;
-
-    camera.position.copy(idealCameraPosition);
-
-    const raycastOrigin = new THREE.Vector3(idealCameraPosition.x, idealCameraPosition.y + 10, idealCameraPosition.z);
-    raycaster.set(raycastOrigin, new THREE.Vector3(0, -1, 0));
-    const intersects = raycaster.intersectObjects(scene.children, true);
-
-    let groundY = -Infinity;
-
-    if (intersects.length > 0) {
-        groundY = intersects[0].point.y;
-        const minCameraYAboveGround = groundY + 0.5;
-        camera.position.y = Math.max(camera.position.y, minCameraYAboveGround);
-
-        const carGroundDistance = carPosition.y - groundY;
-        const ceilingThreshold = 2.0;
-        if (carGroundDistance < ceilingThreshold) {
-            const maxCameraYUnderCeiling = carPosition.y + cameraHeight;
-            camera.position.y = Math.min(camera.position.y, maxCameraYUnderCeiling);
-        }
-    }
-
-    const carForward = new THREE.Vector3(0, 0, 1).applyQuaternion(chassisMesh.quaternion);
-    camera.lookAt(carPosition.clone().add(carForward));
-}
-
-
 
 
 
