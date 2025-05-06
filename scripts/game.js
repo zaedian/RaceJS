@@ -327,10 +327,10 @@ for (let i = 0; i < vertices.length; i += 3) {
         const wheelAxle = new Ammo.btVector3(-1, 0, 0);
 
         const positions = [
-            [ 0.7, 0.5,  1.2, true ],    // Front right
-            [-0.7, 0.5,  1.2, true ],
-            [ 0.7, 0.5, -1.3, false ],
-            [-0.7, 0.5, -1.3, false ]
+            [ 0.75, 0.5,  1.2, true ],    // Front right
+            [-0.75, 0.5,  1.2, true ],
+            [ 0.75, 0.5, -1.3, false ],
+            [-0.75, 0.5, -1.3, false ]
         ];
 
         // Create a texture loader
