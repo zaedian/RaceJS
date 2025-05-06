@@ -317,10 +317,10 @@ for (let i = 0; i < vertices.length; i += 3) {
         const wheelAxle = new Ammo.btVector3(-1, 0, 0);
 
         const positions = [
-            [ 0.7, 0.4,  1.3, true ],    // Front right
-            [-0.7, 0.4,  1.3, true ],
-            [ 0.7, 0.4, -1.3, false ],
-            [-0.7, 0.4, -1.3, false ]
+            [ 0.7, 0.5,  1.2, true ],    // Front right
+            [-0.7, 0.5,  1.2, true ],
+            [ 0.7, 0.5, -1.3, false ],
+            [-0.7, 0.5, -1.3, false ]
         ];
 
         // Create a texture loader
@@ -513,7 +513,7 @@ if (up.y < 0.2) { // Almost upside down
 
 // First-person camera update logic
 if (cameraMode === 'firstPerson') {
-    const cameraHeight = 0.5;
+    const cameraHeight = 0.45;
     // Assuming the car's local forward is positive Z and right is positive X
 
     // Calculate the camera position relative to the car's local space
