@@ -564,56 +564,55 @@ if (cameraMode === 'firstPerson') {
 
 
             // Third-person camera update logic
-// Third-person camera update logic
-else {
-    const cameraDistance = 5;
-    const cameraHeight = 1.75; // Base desired height above the car
-    const offset = new THREE.Vector3(
-        -Math.sin(yawThirdPerson) * cameraDistance,
-        0, // Y offset is handled separately
-        -Math.cos(yawThirdPerson) * cameraDistance
-    );
+			else {
+				const cameraDistance = 5;
+				const cameraHeight = 1.75; // Base desired height above the car
+				const offset = new THREE.Vector3(
+					-Math.sin(yawThirdPerson) * cameraDistance,
+					0, // Y offset is handled separately
+					-Math.cos(yawThirdPerson) * cameraDistance
+				);
 
-    // Calculate the ideal camera position based on car and offsets
-    const idealCameraPosition = carPosition.clone().add(offset);
-    idealCameraPosition.y += cameraHeight - Math.sin(pitchThirdPerson) * cameraDistance;
+				// Calculate the ideal camera position based on car and offsets
+				const idealCameraPosition = carPosition.clone().add(offset);
+				idealCameraPosition.y += cameraHeight - Math.sin(pitchThirdPerson) * cameraDistance;
 
-    // Start with the ideal position
-    camera.position.copy(idealCameraPosition);
+				// Start with the ideal position
+				camera.position.copy(idealCameraPosition);
 
-    // Raycast down from a point above the ideal position to find the ground
-    // Start the raycast from a point higher than the potential ground
-    const raycastOrigin = new THREE.Vector3(idealCameraPosition.x, idealCameraPosition.y + 10, idealCameraPosition.z);
-    raycaster.set(raycastOrigin, downVector); // downVector should be new THREE.Vector3(0, -1, 0)
-    const intersects = raycaster.intersectObjects(scene.children, true); // check all children
+				// Raycast down from a point above the ideal position to find the ground
+				// Start the raycast from a point higher than the potential ground
+				const raycastOrigin = new THREE.Vector3(idealCameraPosition.x, idealCameraPosition.y + 10, idealCameraPosition.z);
+				raycaster.set(raycastOrigin, downVector); // downVector should be new THREE.Vector3(0, -1, 0)
+				const intersects = raycaster.intersectObjects(scene.children, true); // check all children
 
-    let groundY = -Infinity; // Initialize groundY to a very low value
+				let groundY = -Infinity; // Initialize groundY to a very low value
 
-    if (intersects.length > 0) {
-        groundY = intersects[0].point.y;
+				if (intersects.length > 0) {
+					groundY = intersects[0].point.y;
 
-        // Keep camera above the ground
-        const minCameraYAboveGround = groundY + 0.5; // Minimum height above the actual ground hit
-        camera.position.y = Math.max(camera.position.y, minCameraYAboveGround);
+					// Keep camera above the ground
+					const minCameraYAboveGround = groundY + 0.5; // Minimum height above the actual ground hit
+					camera.position.y = Math.max(camera.position.y, minCameraYAboveGround);
 
-        // Prevent camera from going too high under low structures
-        const carGroundDistance = carPosition.y - groundY;
-        const ceilingThreshold = 2.0; // Adjust this value based on your scene's typical tunnel/bridge height
+					// Prevent camera from going too high under low structures
+					const carGroundDistance = carPosition.y - groundY;
+					const ceilingThreshold = 2.0; // Adjust this value based on your scene's typical tunnel/bridge height
 
-        if (carGroundDistance < ceilingThreshold) {
-             // If under a low structure, cap the camera's height relative to the car's height
-             // Prevent the camera from being significantly higher than the car
-             const maxCameraYUnderCeiling = carPosition.y + cameraHeight; // Or a smaller offset if needed
-             camera.position.y = Math.min(camera.position.y, maxCameraYUnderCeiling);
-        }
+					if (carGroundDistance < ceilingThreshold) {
+						 // If under a low structure, cap the camera's height relative to the car's height
+						 // Prevent the camera from being significantly higher than the car
+						 const maxCameraYUnderCeiling = carPosition.y + cameraHeight; // Or a smaller offset if needed
+						 camera.position.y = Math.min(camera.position.y, maxCameraYUnderCeiling);
+					}
 
-    } else {
-         // If the raycast didn't hit anything
-    }
+				} else {
+					 // If the raycast didn't hit anything
+				}
 
 
-    camera.lookAt(carPosition);
-}
+				camera.lookAt(carPosition);
+			}
 
 
 
