@@ -316,7 +316,7 @@ for (let i = 0; i < vertices.length; i += 3) {
             });
 			
 			
-			const neonLight = new THREE.RectAreaLight(0x0000ff, 8, 2, 3.5);
+			const neonLight = new THREE.RectAreaLight(0x0000ff, 8, 2, 4.2);
 			neonLight.position.set(0, -0.5, 0);
 			neonLight.rotation.x = -Math.PI / 2;
 			chassisMesh.add(neonLight);
