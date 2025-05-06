@@ -110,7 +110,7 @@ Ammo().then(function (Ammo) {
 	}
 	
 		// Toggle camera view on pressing C
-	if (['c', 'v'].includes(e.key.toLowerCase())) {
+	if (['v'].includes(e.key.toLowerCase())) {
 			cameraType = (cameraType === 'type1') ? 'type2' : 'type1';
 	}
     });
