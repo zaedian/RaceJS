@@ -66,7 +66,7 @@ const sunOffset = new THREE.Vector3(20, 30, 20);
 let physicsWorld, vehicle, chassisBody, chassisMesh, wheelMeshes = [], transformAux1;
 const maxEngineForce = 6500, maxBreakingForce = 2000, maxSteeringValue = 0.45;
 const steeringIncrement = 0.1, steeringClamp = 0.3;
-const suspensionRestLength = 1.0, suspensionStiffness = 50, suspensionDamping = 5, suspensionCompression = 1, suspensionRelaxation = 5;
+const suspensionRestLength = 1.0, suspensionStiffness = 50, suspensionDamping = 10, suspensionCompression = 1, suspensionRelaxation = 5;
 //How fast the car rolls over
 const rollInfluence = 0.01, wheelFriction = 1000, wheelRadius = 0.3, wheelWidth = 0.15;
 let currentSteeringValue = 0, engineForce = 0, breakingForce = 0;
