@@ -302,8 +302,16 @@ for (let i = 0; i < vertices.length; i += 3) {
                     child.receiveShadow = true;
                 }
             });
+const neonLight = new THREE.RectAreaLight(0x0000ff, 3, 2, 4);
+neonLight.position.set(0, -0.5, 0);
+neonLight.rotation.x = -Math.PI / 2;
+chassisMesh.add(neonLight);
+
+
             scene.add(chassisMesh);
         });
+		
+		
 
         // Vehicle setup
         const tuning = new Ammo.btVehicleTuning();
@@ -363,6 +371,7 @@ for (let i = 0; i < vertices.length; i += 3) {
             wheelInfo.set_m_rollInfluence(rollInfluence);
             wheelInfo.set_m_maxSuspensionForce(10000);
         }
+		
     }
 	
 function updateVehicle(deltaTime) {
