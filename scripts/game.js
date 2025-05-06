@@ -563,30 +563,45 @@ if (cameraMode === 'firstPerson') {
 
 
 
+// Third-person camera update logic
+else {
+    const cameraDistance = 5;
+    const cameraHeight = 1.75;
+    const offset = new THREE.Vector3(
+        -Math.sin(yawThirdPerson) * cameraDistance,
+        0,
+        -Math.cos(yawThirdPerson) * cameraDistance
+    );
 
-            // Third-person camera update logic
-            else {
-                const cameraDistance = 5;
-                const cameraHeight = 1.75;
-                const offset = new THREE.Vector3(
-                    -Math.sin(yawThirdPerson) * cameraDistance,
-                    0,
-                    -Math.cos(yawThirdPerson) * cameraDistance
-                );
+    // Set initial camera position based on the car's position and offset
+    camera.position.copy(carPosition).add(offset);
+    camera.position.y += cameraHeight - Math.sin(pitchThirdPerson) * cameraDistance;
 
-                camera.position.copy(carPosition).add(offset);
-                camera.position.y += cameraHeight - Math.sin(pitchThirdPerson) * cameraDistance;
+    // Raycast to ensure camera doesn't pass through any obstacles (like a loop)
+    raycaster.set(new THREE.Vector3(camera.position.x, camera.position.y + 10, camera.position.z), new THREE.Vector3(0, -1, 0));  // Ray goes downward from the camera
+    const intersects = raycaster.intersectObjects(scene.children, true); // Check for all intersected objects
 
-                // Raycast down to keep camera above the map
-                raycaster.set(new THREE.Vector3(camera.position.x, camera.position.y + 10, camera.position.z), downVector);
-                const intersects = raycaster.intersectObjects(scene.children, true); // check all children
-                if (intersects.length > 0) {
-                    const groundY = intersects[0].point.y;
-                    camera.position.y = Math.max(camera.position.y, groundY + 0.5); // add some height above ground
-                }
+    if (intersects.length > 0) {
+        const groundY = intersects[0].point.y; // Y position where the ray hit an object (could be the loop or ground)
 
-                camera.lookAt(carPosition);
-            }
+        // If we're under an elevated object (like a loop), adjust the camera to be under it
+        if (carPosition.y - groundY > 2) { // Threshold to detect when the car is under an elevated structure
+            camera.position.y = Math.max(camera.position.y, groundY + 0.5); // Keep the camera below the elevated object (the loop)
+        }
+        // Else: No obstruction, keep the camera's y at normal height (allow for free pitch)
+    }
+
+    // Ensure the camera looks at the car
+    camera.lookAt(carPosition);
+}
+
+
+
+
+
+
+
+
         }
     }
 
