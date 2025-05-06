@@ -576,66 +576,98 @@ if (cameraMode === 'firstPerson') {
             // Third-person camera update logic
 			
 
-	if (cameraType === 'type1') {
-		const cameraDistance = 5;
-		const cameraHeight = 1.75;
+if (cameraType === 'type1') {
+    const cameraDistance = 5;
+    const cameraHeight = 1.75;
 
-		const offset = new THREE.Vector3(
-			-Math.sin(yawThirdPerson) * cameraDistance,
-			0,
-			-Math.cos(yawThirdPerson) * cameraDistance
-		);
+    const offset = new THREE.Vector3(
+        -Math.sin(yawThirdPerson) * cameraDistance,
+        0,
+        -Math.cos(yawThirdPerson) * cameraDistance
+    );
 
-		camera.position.copy(carPosition).add(offset);
-		camera.position.y += cameraHeight - Math.sin(pitchThirdPerson) * cameraDistance;
+    camera.position.copy(carPosition).add(offset);
+    camera.position.y += cameraHeight - Math.sin(pitchThirdPerson) * cameraDistance;
 
-		raycaster.set(new THREE.Vector3(camera.position.x, camera.position.y + 10, camera.position.z), new THREE.Vector3(0, -1, 0));
-		const intersects = raycaster.intersectObjects(scene.children, true);
-		if (intersects.length > 0) {
-			const groundY = intersects[0].point.y;
-			camera.position.y = Math.max(camera.position.y, groundY + 0.5);
-		}
+    // Raycast down to find the ground
+    raycaster.set(new THREE.Vector3(camera.position.x, camera.position.y + 10, camera.position.z), new THREE.Vector3(0, -1, 0));
+    const intersects = raycaster.intersectObjects(scene.children, true);
+    
+    if (intersects.length > 0) {
+        const groundY = intersects[0].point.y;
 
-		camera.lookAt(carPosition);
-	}
+        // Prevent the camera from going below the ground
+        camera.position.y = Math.max(camera.position.y, groundY + 0.5);
+
+        // Prevent the camera from going above low ceilings
+        const carGroundDistance = carPosition.y - groundY;
+        const ceilingThreshold = 2.0; // Tune as needed
+
+        if (carGroundDistance < ceilingThreshold) {
+            const maxCameraYUnderCeiling = carPosition.y + cameraHeight;
+            camera.position.y = Math.min(camera.position.y, maxCameraYUnderCeiling);
+        }
+    }
+
+    camera.lookAt(carPosition);
+}
+
 
 	else if (cameraType === 'type2') {
-		const cameraDistance = 5;
-		const cameraHeight = 1.5;
+// Third-person camera update logic
+    const cameraDistance = 5;
+    const cameraHeight = 1.75; // Base desired height above the car
 
-		const offset = new THREE.Vector3(
-			-Math.sin(yawThirdPerson) * cameraDistance,
-			0,
-			-Math.cos(yawThirdPerson) * cameraDistance
-		);
+    // Calculate the offset relative to the car's local space
+    const offset = new THREE.Vector3(
+        -Math.sin(yawThirdPerson) * cameraDistance,
+        0, // Y offset is handled separately
+        -Math.cos(yawThirdPerson) * cameraDistance
+    );
 
-		const rotatedOffset = offset.clone().applyQuaternion(chassisMesh.quaternion);
-		const idealCameraPosition = carPosition.clone().add(rotatedOffset);
-		idealCameraPosition.y += cameraHeight - Math.sin(pitchThirdPerson) * cameraDistance;
+    // Apply the car's rotation to the offset
+    const carRotationQuaternion = chassisMesh.quaternion.clone();
+    const rotatedOffset = offset.clone().applyQuaternion(carRotationQuaternion); // Rotate the offset by the car's rotation
 
-		camera.position.copy(idealCameraPosition);
+    // Calculate the ideal camera position based on car's world position and rotated offset
+    const idealCameraPosition = carPosition.clone().add(rotatedOffset);
+    idealCameraPosition.y += cameraHeight - Math.sin(pitchThirdPerson) * cameraDistance;
 
-		const raycastOrigin = new THREE.Vector3(idealCameraPosition.x, idealCameraPosition.y + 10, idealCameraPosition.z);
-		raycaster.set(raycastOrigin, new THREE.Vector3(0, -1, 0));
-		const intersects = raycaster.intersectObjects(scene.children, true);
+    // Start with the ideal position
+    camera.position.copy(idealCameraPosition);
 
-		let groundY = -Infinity;
+    // Raycast down from a point above the ideal position to find the ground
+    const raycastOrigin = new THREE.Vector3(idealCameraPosition.x, idealCameraPosition.y + 10, idealCameraPosition.z);
+    raycaster.set(raycastOrigin, downVector); // downVector should be new THREE.Vector3(0, -1, 0)
+    const intersects = raycaster.intersectObjects(scene.children, true); // check all children
 
-		if (intersects.length > 0) {
-			groundY = intersects[0].point.y;
-			const minCameraYAboveGround = groundY + 0.5;
-			camera.position.y = Math.max(camera.position.y, minCameraYAboveGround);
+    let groundY = -Infinity; // Initialize groundY to a very low value
 
-			const carGroundDistance = carPosition.y - groundY;
-			const ceilingThreshold = 2.0;
-			if (carGroundDistance < ceilingThreshold) {
-				const maxCameraYUnderCeiling = carPosition.y + cameraHeight;
-				camera.position.y = Math.min(camera.position.y, maxCameraYUnderCeiling);
-			}
-		}
+    if (intersects.length > 0) {
+        groundY = intersects[0].point.y;
 
-		const carForward = new THREE.Vector3(0, 0, 1).applyQuaternion(chassisMesh.quaternion);
-		camera.lookAt(carPosition.clone().add(carForward));
+        // Keep camera above the ground
+        const minCameraYAboveGround = groundY + 0.5; // Minimum height above the actual ground hit
+        camera.position.y = Math.max(camera.position.y, minCameraYAboveGround);
+
+        // Prevent camera from going too high under low structures
+        const carGroundDistance = carPosition.y - groundY;
+        const ceilingThreshold = 2.0; // Adjust this value based on your scene's typical tunnel/bridge height
+
+        if (carGroundDistance < ceilingThreshold) {
+            // If under a low structure, cap the camera's height relative to the car's height
+            const maxCameraYUnderCeiling = carPosition.y + cameraHeight; // Or a smaller offset if needed
+            camera.position.y = Math.min(camera.position.y, maxCameraYUnderCeiling);
+        }
+    } else {
+        // If the raycast didn't hit anything, do nothing
+    }
+
+    // Now make sure the camera faces the car's forward direction
+    const carForward = new THREE.Vector3(0, 0, 1); // Forward direction of the car
+    carForward.applyQuaternion(chassisMesh.quaternion); // Apply the car's rotation to the forward vector
+    camera.lookAt(carPosition.clone().add(carForward)); // Look at the car, adjusted for its forward vector
+
 	}
 
 }
