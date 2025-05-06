@@ -8,7 +8,7 @@ camera.position.set(0, 10, 15);
 camera.lookAt(0, 0, 0);
 const raycaster = new THREE.Raycaster();
 const downVector = new THREE.Vector3(0, -1, 0);
-let cameraType = 'type2';
+let cameraType = 'type1';
 
 const updatables = [];
 
