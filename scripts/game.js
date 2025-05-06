@@ -1,6 +1,11 @@
 // game.js
 const scene = new THREE.Scene();
 
+
+const stats = new Stats();
+stats.showPanel(0); // 0: fps
+document.querySelector('.UI-TopLeft').appendChild(stats.dom);
+
 const textureLoader = new THREE.TextureLoader();
 
 const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
@@ -105,7 +110,7 @@ Ammo().then(function (Ammo) {
 	}
 	
 		// Toggle camera view on pressing C
-	if (['c'].includes(e.key.toLowerCase())) {
+	if (['c', 'v'].includes(e.key.toLowerCase())) {
 			cameraType = (cameraType === 'type1') ? 'type2' : 'type1';
 	}
     });
@@ -474,6 +479,7 @@ function onMouseMove(event) {
 
 // Animation loop
 function animate() {
+	stats.begin();
     requestAnimationFrame(animate);
     let deltaTime = clock.getDelta();
     if (paused) return;
@@ -691,6 +697,7 @@ if (cameraType === 'type1') {
 	updatables.forEach(fn => fn());
 
     renderer.render(scene, camera);
+	stats.end();
 }
 
 });
