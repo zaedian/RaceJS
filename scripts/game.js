@@ -3,7 +3,7 @@ const scene = new THREE.Scene();
 
 
 const stats = new Stats();
-stats.showPanel(0); // 0: fps
+stats.showPanel();
 document.querySelector('.UI-TopLeft').appendChild(stats.dom);
 
 const textureLoader = new THREE.TextureLoader();
