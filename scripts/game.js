@@ -70,9 +70,9 @@ const sunOffset = new THREE.Vector3(20, 30, 20);
 
 // Ammo.js variables
 let physicsWorld, vehicle, chassisBody, chassisMesh, wheelMeshes = [], transformAux1;
-const maxEngineForce = 15000, maxBreakingForce = 2000, maxSteeringValue = 0.01;
-const steeringIncrement = 0.08, steeringClamp = 0.25;
-const suspensionRestLength = 1.0, suspensionStiffness = 3, suspensionDamping = 10, suspensionCompression = 1, suspensionRelaxation = 5;
+const maxEngineForce = 6500, maxBreakingForce = 2000, maxSteeringValue = 0.45;
+const steeringIncrement = 0.1, steeringClamp = 0.3;
+const suspensionRestLength = 1.0, suspensionStiffness = 50, suspensionDamping = 10, suspensionCompression = 1, suspensionRelaxation = 5;
 //How fast the car rolls over
 const rollInfluence = 0.01, wheelFriction = 1000, wheelRadius = 0.3, wheelWidth = 0.15;
 let currentSteeringValue = 0, engineForce = 0, breakingForce = 0;
@@ -165,7 +165,7 @@ Ammo().then(function (Ammo) {
     }
 	
 	
-function createBall(position = { x: 0, y: 0, z: 0 }, radius = 1.5, mass = 500) {
+function createBall(position = { x: 0, y: 0, z: 0 }, radius = 1.5, mass = 750) {
     // Load the map.glb and find the ball model inside it
     gltfLoader.load('models/map.glb', function (gltf) {
         const map = gltf.scene;
@@ -285,7 +285,7 @@ for (let i = 0; i < vertices.length; i += 3) {
         const transform = new Ammo.btTransform();
         transform.setIdentity();
         transform.setOrigin(new Ammo.btVector3(0, 1.0, 0));
-        const mass = 2000;
+        const mass = 1000;
         const localInertia = new Ammo.btVector3(0, 0, 0);
         chassisShape.calculateLocalInertia(mass, localInertia);
         const motionState = new Ammo.btDefaultMotionState(transform);
