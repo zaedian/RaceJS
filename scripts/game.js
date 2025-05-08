@@ -92,8 +92,8 @@ Ammo().then(function (Ammo) {
     createGround();
     createCar();
 	createBall({ x: -25, y: 0, z: 30 }, 1.5, 1);
-	createBall({ x: -30, y: 0, z: 30 }, 1.5, 1000);
-	createBall({ x: -35, y: 0, z: 30 }, 1.5, 12000);
+	createBall({ x: -30, y: 0, z: 30 }, 1.5, 600);
+	createBall({ x: -35, y: 0, z: 30 }, 1.5, 1200);
     createMap();
     transformAux1 = new Ammo.btTransform();
 
